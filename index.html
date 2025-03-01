@@ -14,6 +14,10 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    if (typeof initJsPsych === 'undefined') {
+        console.error("initJsPsych is not defined. Ensure that jsPsych is correctly loaded.");
+        return;
+    }
     let jsPsych = initJsPsych({
         on_finish: function() {
             jsPsych.data.displayData();
