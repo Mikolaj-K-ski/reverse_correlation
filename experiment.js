@@ -36,9 +36,12 @@ document.addEventListener("DOMContentLoaded", function() {
         let trials = stimuli.map(row => ({
             type: "image-button-response",
             stimulus: [
-                'images/' + row.image1,
-                'images/' + row.image2
+        'https://mikolaj-k-ski.github.io/reverse_correlation/images/' + row.image1,
+        'https://mikolaj-k-ski.github.io/reverse_correlation/images/' + row.image2
             ],
+
+
+            
             choices: ['Obraz po lewej', 'Obraz po prawej'],
             prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
             data: { chosen_image: row.image1 }
