@@ -29,40 +29,34 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     fetch("stimuli.csv")
-        .then(response => {
-            if (!response.ok) throw new Error("Nie można wczytać stimuli.csv. Sprawdź ścieżkę!");
-            return response.text();
-        })
-        .then(csvText => {
-            let stimuli = Papa.parse(csvText, { header: true }).data;
-            
-            if (!stimuli || stimuli.length === 0 || !stimuli[0].image1 || !stimuli[0].image2) {
-                throw new Error("Błąd: stimuli.csv jest pusty lub ma zły format.");
-            }
+    .then(response => response.text())
+    .then(csvText => {
+        let stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
 
-            let trials = stimuli.map(row => ({
-                type: "image-button-response", // Poprawiona składnia
-                stimulus: [
-                    'images/' + row.image1, // Przypisanie dynamiczne
-                    'images/' + row.image2 // Przypisanie dynamiczne
-                ],
-                choices: ['Obraz po lewej', 'Obraz po prawej'],
-                prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
-                data: { chosen_image: row.image1 }
-            }));
+        let trials = stimuli.map(row => ({
+            type: "image-button-response",
+            stimulus: [
+                'images/' + row.image1,
+                'images/' + row.image2
+            ],
+            choices: ['Obraz po lewej', 'Obraz po prawej'],
+            prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
+            data: { chosen_image: row.image1 }
+        }));
 
-            let timeline = [
-                {
-                    type: "html-keyboard-response",
-                    stimulus: "<p>Naciśnij spację, aby rozpocząć eksperyment.</p>",
-                    choices: [' ']
-                },
-                ...trials
-            ];
+        let timeline = [
+            {
+                type: "html-keyboard-response",
+                stimulus: "<p>Naciśnij spację, aby rozpocząć eksperyment.</p>",
+                choices: [' ']
+            },
+            ...trials
+        ];
 
-            jsPsych.run(timeline);
-        })
-        .catch(error => console.error("Błąd:", error.message));
+        jsPsych.run(timeline);
+    })
+    .catch(error => console.error("Błąd:", error.message));
+
 });
 </script>
 </html>
