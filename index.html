@@ -4,28 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reverse Correlation Experiment</title>
+    
+    <!-- Załaduj jsPsych -->
     <script src="https://unpkg.com/jspsych@7.3.0/jspsych.js"></script>
     <script src="https://unpkg.com/jspsych@7.3.0/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="https://unpkg.com/jspsych@7.3.0/plugins/jspsych-image-button-response.js"></script>
+    
+    <!-- Załaduj bibliotekę do obsługi CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <!-- Załaduj styl jsPsych -->
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css">
 </head>
 <body></body>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("Skrypt się uruchomił!");
+
+    // Inicjalizacja jsPsych
     let jsPsych = initJsPsych({
         on_finish: function() {
-            jsPsych.data.displayData();
+            jsPsych.data.displayData(); // Wyświetlenie wyników
         }
     });
 
+    // Sprawdzenie, czy plik stimuli.csv się ładuje
     fetch("stimuli.csv")
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Nie można wczytać stimuli.csv. Sprawdź ścieżkę do pliku!");
+            }
+            return response.text();
+        })
         .then(csvText => {
             let stimuli = Papa.parse(csvText, { header: true }).data;
+
+            // Sprawdzenie, czy stimuli zawiera poprawne dane
+            if (!stimuli || stimuli.length === 0 || !stimuli[0].image1 || !stimuli[0].image2) {
+                throw new Error("Błąd: stimuli.csv nie zawiera poprawnych danych.");
+            }
+
             let trials = stimuli.map(row => ({
-                type: jsPsychImageButtonResponse,
+                type: "image-button-response", // Poprawiona wersja
                 stimulus: [row.image1, row.image2],
                 choices: ['Obraz po lewej', 'Obraz po prawej'],
                 prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
@@ -34,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             let timeline = [
                 {
-                    type: jsPsychHtmlKeyboardResponse,
+                    type: "html-keyboard-response", // Poprawiona wersja
                     stimulus: "<p>Naciśnij spację, aby rozpocząć eksperyment.</p>",
                     choices: [' ']
                 },
@@ -43,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             jsPsych.run(timeline);
         })
-        .catch(error => console.error("Błąd wczytywania stimuli.csv:", error));
+        .catch(error => console.error("Błąd:", error.message));
 });
 </script>
 </html>
