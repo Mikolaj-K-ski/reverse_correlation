@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             let trials = stimuli.map(row => ({
                 type: "image-button-response", // Poprawiona składnia
-                stimulus: [row.image1, row.image2],
+                stimulus: ['images/blended_run_1.png', 'images/blended_inverse_run_1.png']
                 choices: ['Obraz po lewej', 'Obraz po prawej'],
                 prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
                 data: { chosen_image: row.image1 }
