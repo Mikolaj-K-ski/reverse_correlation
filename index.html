@@ -42,7 +42,8 @@ document.addEventListener("DOMContentLoaded", function() {
             ];
 
             jsPsych.run(timeline);
-        });
+        })
+        .catch(error => console.error("Błąd wczytywania stimuli.csv:", error));
 });
 </script>
 </html>
