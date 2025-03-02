@@ -46,8 +46,11 @@ document.addEventListener("DOMContentLoaded", function() {
     return {
         type: "image-button-response",
         stimulus: [
-            `https://mikolaj-k-ski.github.io/reverse_correlation/images/${img1}`,
+            `https://mikolaj-k-ski.github.io/reverse_correlation/images/${img1}`
+             ],
+         stimulus: [
             `https://mikolaj-k-ski.github.io/reverse_correlation/images/${img2}`
+              ],
         ],
         choices: ['Obraz po lewej', 'Obraz po prawej'],
         prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
