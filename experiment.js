@@ -12,63 +12,61 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    fetch("stimuli.csv")
-        .then(response => response.text())
-        .then(csvText => {
-            globalCsvText = csvText; // Zapisujemy CSV globalnie dla testów w konsoli
-            console.log("🔍 Zawartość CSV (surowa):", csvText);
+   fetch("stimuli.csv")
+    .then(response => response.text())
+    .then(csvText => {
+        window.globalCsvText = csvText; // Debugowanie
 
-            // Próbujemy parsować CSV z różnymi delimiterami
-            let stimuli = Papa.parse(csvText, { header: true, delimiter: "," }).data;
-            if (stimuli.length === 0 || !stimuli[0].image1) {
-                console.warn("⚠️ CSV może używać średnika zamiast przecinka! Próbuję ponownie...");
-                stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
+        console.log("🔍 Surowe dane CSV:", csvText);
+
+        // Spróbuj parsować najpierw z przecinkiem, potem z średnikiem
+        let stimuli = Papa.parse(csvText, { header: true, delimiter: "," }).data;
+        if (!stimuli[0] || !stimuli[0].image1) {
+            console.warn("⚠️ CSV może używać średnika! Spróbuję ponownie...");
+            stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
+        }
+
+        console.log("✅ Parsowane dane z CSV:", stimuli);
+
+        let trials = stimuli.map(row => {
+            let image1 = row.image1 ? row.image1.trim() : "";
+            let image2 = row.image2 ? row.image2.trim() : "";
+
+            if (!image1 || !image2) {
+                console.error("❌ Błąd w wierszu CSV:", row);
+                return null; // Pominięcie błędnych wierszy
             }
 
-           
-        window.globalCsvText = csvText;
-        console.log("🔍 Zawartość CSV zapisana w globalCsvText:", window.globalCsvText);
+            let img1_url = `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image1}`;
+            let img2_url = `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image2}`;
 
-            // Tworzymy próby eksperymentalne
-            let trials = stimuli.map(row => {
-                let image1 = row.image1 ? row.image1.trim() : ""; 
-                let image2 = row.image2 ? row.image2.trim() : "";
+            console.log("🔗 Generowane URL-e:", img1_url, img2_url); // Debugowanie
 
-                console.log("🔗 Generowany URL dla image1:", `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image1}`);
-                console.log("🔗 Generowany URL dla image2:", `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image2}`);
+            return {
+                type: "image-button-response",
+                stimulus: [img1_url, img2_url], // Poprawione!
+                choices: ['Obraz po lewej', 'Obraz po prawej'],
+                prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
+                data: { chosen_image: image1 }
+            };
+        }).filter(trial => trial !== null); // Usunięcie błędnych wierszy
 
-                if (!image1 || !image2) {
-                    console.warn("⚠️ Pusta nazwa obrazu w wierszu CSV:", row);
-                    return null; // Pomijamy błędne wiersze
-                }
+        if (trials.length === 0) {
+            console.error("❌ Brak poprawnych prób w stimuli.csv!");
+            return;
+        }
 
-                return {
-                    type: "image-button-response",
-                    stimulus: [
-                        `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image1}`,
-                        `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image2}`
-                    ],
-                    choices: ['Obraz po lewej', 'Obraz po prawej'],
-                    prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
-                    data: { chosen_image: image1 }
-                };
-            }).filter(trial => trial !== null); // Usuwamy błędne wiersze
+        let timeline = [
+            {
+                type: "html-keyboard-response",
+                stimulus: "<p>Naciśnij spację, aby rozpocząć eksperyment.</p>",
+                choices: [' ']
+            },
+            ...trials
+        ];
 
-            if (trials.length === 0) {
-                console.error("❌ Brak poprawnych prób w pliku stimuli.csv!");
-                return;
-            }
+        jsPsych.run(timeline);
+    })
+    .catch(error => console.error("❌ Błąd wczytywania stimuli.csv:", error));
 
-            let timeline = [
-                {
-                    type: "html-keyboard-response",
-                    stimulus: "<p>Naciśnij spację, aby rozpocząć eksperyment.</p>",
-                    choices: [' ']
-                },
-                ...trials
-            ];
-
-            jsPsych.run(timeline);
-        })
-        .catch(error => console.error("❌ Błąd wczytywania stimuli.csv:", error));
 });
