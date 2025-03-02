@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reverse Correlation Experiment</title>
-    <script src="dist/jspsych.js"></script>
-    <script src="dist/plugin-html-keyboard-response.js"></script>
-    <script src="dist/plugin-image-button-response.js"></script>
+
+    <!-- ✅ Poprawione ścieżki do jsPsych -->
+    <script src="https://unpkg.com/jspsych@7.3.0/jspsych.js"></script>
+    <script src="https://unpkg.com/jspsych@7.3.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="https://unpkg.com/jspsych@7.3.0/plugins/jspsych-image-button-response.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.0/css/jspsych.css">
 </head>
 <body></body>
@@ -15,9 +18,10 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof initJsPsych === 'undefined') {
-        console.error("initJsPsych is not defined. Ensure that jsPsych is correctly loaded.");
+        console.error("❌ initJsPsych is not defined! Sprawdź, czy jsPsych jest poprawnie załadowany.");
         return;
     }
+
     let jsPsych = initJsPsych({
         on_finish: function() {
             jsPsych.data.displayData();
@@ -27,18 +31,49 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch("stimuli.csv")
         .then(response => response.text())
         .then(csvText => {
-            let stimuli = Papa.parse(csvText, { header: true }).data;
-            let trials = stimuli.map(row => ({
-                type: jsPsychImageButtonResponse,
-                stimulus: [row.image1, row.image2],
-                choices: ['Obraz po lewej', 'Obraz po prawej'],
-                prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
-                data: { chosen_image: row.image1 }
-            }));
+            console.log("✅ Zawartość CSV:", csvText);  // Debugowanie
+
+            let stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
+
+            // Jeśli CSV zawiera błędne separatory, spróbuj z przecinkiem
+            if (!stimuli[0] || !stimuli[0].image1) {
+                console.warn("⚠️ CSV może używać przecinka zamiast średnika! Spróbuję ponownie...");
+                stimuli = Papa.parse(csvText, { header: true, delimiter: "," }).data;
+            }
+
+            console.log("✅ Parsowane dane z CSV:", stimuli);
+
+            let trials = stimuli.map(row => {
+                if (!row.image1 || !row.image2) {
+                    console.warn("⚠️ Pominięto wiersz bez obrazków:", row);
+                    return null;
+                }
+
+                let img1 = row.image1.trim();  // Usuwa spacje przed/po
+                let img2 = row.image2.trim();
+
+                console.log("🔗 Generowane URL-e:", img1, img2);  // Debugowanie
+
+                return {
+                    type: "image-button-response",
+                    stimulus: [
+                        `https://mikolaj-k-ski.github.io/reverse_correlation/images/${img1}`,
+                        `https://mikolaj-k-ski.github.io/reverse_correlation/images/${img2}`
+                    ],
+                    choices: ['Obraz po lewej', 'Obraz po prawej'],
+                    prompt: "<p>Wybierz obraz, który lepiej pasuje do opisu.</p>",
+                    data: { chosen_image: img1 }
+                };
+            }).filter(trial => trial !== null); // Usunięcie błędnych wierszy
+
+            if (trials.length === 0) {
+                console.error("❌ Brak poprawnych prób w stimuli.csv!");
+                return;
+            }
 
             let timeline = [
                 {
-                    type: jsPsychHtmlKeyboardResponse,
+                    type: "html-keyboard-response",
                     stimulus: "<p>Naciśnij spację, aby rozpocząć eksperyment.</p>",
                     choices: [' ']
                 },
@@ -47,7 +82,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
             jsPsych.run(timeline);
         })
-        .catch(error => console.error("Błąd wczytywania stimuli.csv:", error));
+        .catch(error => console.error("❌ Błąd wczytywania stimuli.csv:", error));
 });
 </script>
+
 </html>
