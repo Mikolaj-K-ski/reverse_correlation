@@ -31,14 +31,13 @@ document.addEventListener("DOMContentLoaded", function() {
    fetch("stimuli.csv")
     .then(response => response.text())
     .then(csvText => {
-        console.log("Zawartość CSV:", csvText); // 🔍 Sprawdzenie surowych danych CSV
+        console.log("Zawartość CSV:", csvText); // ✅ Sprawdź w konsoli, czy plik CSV został poprawnie pobrany
 
         let stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
-        
-        console.log("Pobrane dane z CSV:", stimuli); // 🔍 Sprawdzenie sparsowanych danych
+        console.log("Pobrane dane z CSV:", stimuli); // ✅ Sprawdź wynik parsowania
 
         let trials = stimuli.map(row => {
-            let image1 = row.image1 ? row.image1.trim() : ""; // Usunięcie zbędnych spacji
+            let image1 = row.image1 ? row.image1.trim() : ""; 
             let image2 = row.image2 ? row.image2.trim() : "";
 
             return {
@@ -63,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function() {
         ]);
     })
     .catch(error => console.error("Błąd wczytywania stimuli.csv:", error));
+
 
 
 
