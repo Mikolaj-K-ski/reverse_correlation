@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function() {
     .then(csvText => {
         console.log("Zawartość CSV:", csvText); // ✅ Sprawdź w konsoli, czy plik CSV został poprawnie pobrany
 
-        let stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
+        let stimuli = Papa.parse(csvText, { header: true, delimiter: "," }).data;
         console.log("Pobrane dane z CSV:", stimuli); // ✅ Sprawdź wynik parsowania
 
         let trials = stimuli.map(row => {
