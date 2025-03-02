@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 let image1 = row.image1 ? row.image1.trim() : ""; 
                 let image2 = row.image2 ? row.image2.trim() : "";
 
+                console.log("🔗 Generowany URL dla image1:", `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image1}`);
+                console.log("🔗 Generowany URL dla image2:", `https://mikolaj-k-ski.github.io/reverse_correlation/images/${image2}`);
+
                 if (!image1 || !image2) {
                     console.warn("⚠️ Pusta nazwa obrazu w wierszu CSV:", row);
                     return null; // Pomijamy błędne wiersze
