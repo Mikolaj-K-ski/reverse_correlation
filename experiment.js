@@ -31,7 +31,8 @@ document.addEventListener("DOMContentLoaded", function() {
    fetch("stimuli.csv")
     .then(response => response.text())
     .then(csvText => {
-        let stimuli = Papa.parse(csvText, { header: true, delimiter: "," }).data;
+        let stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
+
         
         console.log("Pobrane dane z CSV:", stimuli); // ✅ Sprawdź w konsoli
         
