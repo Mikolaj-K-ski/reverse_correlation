@@ -25,7 +25,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 stimuli = Papa.parse(csvText, { header: true, delimiter: ";" }).data;
             }
 
-            console.log("✅ Pobrane dane z CSV:", stimuli);
+           
+        window.globalCsvText = csvText;
+        console.log("🔍 Zawartość CSV zapisana w globalCsvText:", window.globalCsvText);
 
             // Tworzymy próby eksperymentalne
             let trials = stimuli.map(row => {
